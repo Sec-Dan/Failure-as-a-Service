@@ -1,4 +1,4 @@
-name = "faas"
+name = "failure-as-a-service"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 

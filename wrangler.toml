@@ -1,0 +1,6 @@
+name = "faas"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Tip: when importing from GitHub via Cloudflare “Workers Builds”,
+# Cloudflare will detect package.json + Wrangler configuration automatically.

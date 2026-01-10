@@ -1,0 +1,331 @@
+openapi: 3.1.1
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+
+info:
+  title: Failure As A Service (FaaS)
+  version: 0.1.0
+  description: Enterprise-grade disappointment, delivered on demand.
+
+servers:
+  - url: https://faas.dansec.red
+
+tags:
+  - name: failures
+    description: Generate failure messages
+  - name: meta
+    description: Service metadata & health
+
+paths:
+  /:
+    get:
+      tags: [meta]
+      summary: Homepage
+      description: Small HTML page with a button to generate a failure.
+      responses:
+        "200":
+          description: OK
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /healthz:
+    get:
+      tags: [meta]
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-FAAS-Reason:
+              schema: { type: string }
+            X-FAAS-Category:
+              schema: { type: string }
+            X-FAAS-Tone:
+              schema: { type: string }
+            X-FAAS-Request-Id:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /v1/categories:
+    get:
+      tags: [meta]
+      summary: List categories
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-FAAS-Reason:
+              schema: { type: string }
+            X-FAAS-Category:
+              schema: { type: string }
+            X-FAAS-Tone:
+              schema: { type: string }
+            X-FAAS-Request-Id:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoriesResponse"
+
+  /v1/failure:
+    get:
+      tags: [failures]
+      summary: Get a single failure message
+      parameters:
+        - $ref: "#/components/parameters/category"
+        - $ref: "#/components/parameters/format"
+        - $ref: "#/components/parameters/seed"
+        - $ref: "#/components/parameters/tone"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-FAAS-Reason:
+              schema: { type: string }
+            X-FAAS-Category:
+              schema: { type: string }
+            X-FAAS-Tone:
+              schema: { type: string }
+            X-FAAS-Request-Id:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailureResponse"
+            text/plain:
+              schema:
+                type: string
+        "405":
+          description: Method not allowed (non-GET)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /v1/failure/{status}:
+    get:
+      tags: [failures]
+      summary: Get a failure message with an HTTP status hint
+      description: |
+        Same as `/v1/failure`, but provides an `httpStatusHint` derived from the path.
+        Note: the API still returns HTTP 200 for successful responses; the hint is metadata.
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 599
+        - $ref: "#/components/parameters/category"
+        - $ref: "#/components/parameters/format"
+        - $ref: "#/components/parameters/seed"
+        - $ref: "#/components/parameters/tone"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-FAAS-Reason:
+              schema: { type: string }
+            X-FAAS-Category:
+              schema: { type: string }
+            X-FAAS-Tone:
+              schema: { type: string }
+            X-FAAS-Request-Id:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailureResponse"
+            text/plain:
+              schema:
+                type: string
+
+  /v1/failure/batch:
+    get:
+      tags: [failures]
+      summary: Get multiple failure messages
+      parameters:
+        - $ref: "#/components/parameters/n"
+        - $ref: "#/components/parameters/category"
+        - $ref: "#/components/parameters/format"
+        - $ref: "#/components/parameters/seed"
+        - $ref: "#/components/parameters/tone"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-FAAS-Reason:
+              schema: { type: string }
+            X-FAAS-Category:
+              schema: { type: string }
+            X-FAAS-Tone:
+              schema: { type: string }
+            X-FAAS-Request-Id:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchResponse"
+            text/plain:
+              schema:
+                type: string
+
+components:
+  parameters:
+    category:
+      name: category
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Message category (e.g. general, business, devops, security, product, retro)
+
+    format:
+      name: format
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [json, text]
+        default: json
+      description: Response format. If omitted, defaults to JSON unless Accept prefers text/plain.
+
+    seed:
+      name: seed
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Deterministic output seed (stringified number recommended).
+
+    tone:
+      name: tone
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [safe, spicy]
+        default: safe
+      description: Tone of messages. Both are intended to be workplace-safe.
+
+    n:
+      name: n
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 5
+        minimum: 1
+        maximum: 50
+      description: Batch size (max 50).
+
+  schemas:
+    FailureItem:
+      type: object
+      additionalProperties: false
+      required: [id, message, category, tone]
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+        category:
+          type: string
+        tone:
+          type: string
+          enum: [safe, spicy]
+        httpStatusHint:
+          type: [integer, "null"]
+          minimum: 100
+          maximum: 599
+
+    FailureResponse:
+      type: object
+      additionalProperties: false
+      required: [id, message, category, tone, httpStatusHint, time, requestId]
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+        category:
+          type: string
+        tone:
+          type: string
+          enum: [safe, spicy]
+        httpStatusHint:
+          type: [integer, "null"]
+          minimum: 100
+          maximum: 599
+        time:
+          type: string
+          format: date-time
+        requestId:
+          type: string
+
+    BatchResponse:
+      type: object
+      additionalProperties: false
+      required: [items, count, category, tone, time, requestId]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FailureItem"
+        count:
+          type: integer
+          minimum: 0
+        category:
+          type: string
+        tone:
+          type: string
+          enum: [safe, spicy]
+        time:
+          type: string
+          format: date-time
+        requestId:
+          type: string
+
+    CategoriesResponse:
+      type: object
+      additionalProperties: false
+      required: [categories, version]
+      properties:
+        categories:
+          type: array
+          items:
+            type: string
+        version:
+          type: integer
+
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [ok, service, time]
+      properties:
+        ok:
+          type: boolean
+        service:
+          type: string
+        time:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: [string, "null"]
+        requestId:
+          type: [string, "null"]

@@ -1,8 +1,8 @@
 {
   "name": "failure-as-a-service",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Failure As A Service (FAaS): enterprise-grade disappointment, delivered on demand.",
+  "description": "Failure As A Service (FaaS): enterprise-grade disappointment, delivered on demand.",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -15,12 +15,13 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^9.0.0",
-    "prettier": "^3.0.0",
-    "typescript": "^5.6.0",
-    "vitest": "^2.0.0",
-    "wrangler": "^3.0.0"
+    "@cloudflare/workers-types": "4.20260109.0",
+    "@typescript-eslint/eslint-plugin": "8.52.0",
+    "@typescript-eslint/parser": "8.52.0",
+    "eslint": "9.39.2",
+    "prettier": "3.7.4",
+    "typescript": "5.9.3",
+    "vitest": "4.0.16",
+    "wrangler": "4.58.0"
   }
 }

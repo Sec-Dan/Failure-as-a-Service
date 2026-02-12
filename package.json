@@ -15,13 +15,13 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20260109.0",
-    "@typescript-eslint/eslint-plugin": "8.52.0",
-    "@typescript-eslint/parser": "8.53.0",
+    "@cloudflare/workers-types": "4.20260212.0",
+    "@typescript-eslint/eslint-plugin": "8.55.0",
+    "@typescript-eslint/parser": "8.55.0",
     "eslint": "9.39.2",
     "prettier": "3.8.1",
     "typescript": "5.9.3",
     "vitest": "4.0.17",
-    "wrangler": "4.58.0"
+    "wrangler": "4.65.0"
   }
 }
